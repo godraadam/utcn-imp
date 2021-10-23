@@ -3,10 +3,6 @@ project(imp)
 
 add_compile_options(
     -std=c++17
-    -Wall
-    -Wextra
-    -Wno-unused-parameter
-    -pedantic
 )
 
 add_executable(imp

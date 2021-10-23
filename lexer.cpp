@@ -3,6 +3,8 @@
 #include <sstream>
 
 #include "lexer.h"
+#include <limits>
+
 
 
 
@@ -16,6 +18,10 @@ Token::Token(const Token &that)
     case Kind::IDENT: {
       value_.StringValue = new std::string(*that.value_.StringValue);
       break;
+    }
+    case Kind::INT: {
+        value_.IntValue = that.value_.IntValue;
+        break;
     }
     default: {
       break;
@@ -43,6 +49,10 @@ Token &Token::operator=(const Token &that)
     case Kind::IDENT: {
       value_.StringValue = new std::string(*that.value_.StringValue);
       break;
+    }
+    case Kind::INT: {
+        value_.IntValue = that.value_.IntValue;
+        break;
     }
     default: {
       break;
@@ -80,6 +90,13 @@ Token Token::String(const Location &l, const std::string &str)
   Token tk(l, Kind::STRING);
   tk.value_.StringValue = new std::string(str);
   return tk;
+}
+
+Token Token::Integer(const Location& l, const uint64_t intVal)
+{
+    Token tk(l, Kind::INT);
+    tk.value_.IntValue = intVal;
+    return tk;
 }
 
 // -----------------------------------------------------------------------------
@@ -197,6 +214,23 @@ const Token &Lexer::Next()
       return tk_ = Token::String(loc, word);
     }
     default: {
+        if (isdigit(chr_)) {
+            std::string word;
+            do {
+                word.push_back(chr_);
+                NextChar();
+            } while (isdigit(chr_));
+            uint64_t val;
+            //probably a better approach would be to build integer right away instead of parsing it twice
+            try {
+                val = std::stod(word);
+            }
+            catch (std::out_of_range e) { //invalid argument exception should not occur if tokenizer logic is solid
+                Error("Integer literal out of range!\n");
+            }
+      
+            return tk_ = Token::Integer(loc, val);
+        }
       if (IsIdentStart(chr_)) {
         std::string word;
         do {

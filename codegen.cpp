@@ -9,6 +9,7 @@
 
 
 
+
 // -----------------------------------------------------------------------------
 Codegen::Scope::~Scope()
 {
@@ -177,6 +178,9 @@ void Codegen::LowerExpr(const Scope &scope, const Expr &expr)
     case Expr::Kind::CALL: {
       return LowerCallExpr(scope, static_cast<const CallExpr &>(expr));
     }
+    case Expr::Kind::INTEGER: {
+        return LowerIntegerExpr(scope, static_cast<const IntExpr&>(expr));
+    }
   }
 }
 
@@ -221,6 +225,13 @@ void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
   LowerExpr(scope, call.GetCallee());
   EmitCall(call.arg_size());
   depth_ -= call.arg_size();
+}
+
+// -----------------------------------------------------------------------------
+void Codegen::LowerIntegerExpr(const Scope& scope, const IntExpr& val)
+{
+    EmitInt(val.GetValue());
+    //TODO decrease depth_?
 }
 
 // -----------------------------------------------------------------------------
@@ -354,4 +365,11 @@ void Codegen::EmitJump(Label label)
 {
   Emit<Opcode>(Opcode::JUMP);
   EmitFixup(label);
+}
+
+void Codegen::EmitInt(uint64_t val)
+{
+    depth_ += 1;
+    Emit<Opcode>(Opcode::PUSH_INT);
+    Emit<int64_t>(val);
 }

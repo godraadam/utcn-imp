@@ -4,17 +4,17 @@
 
 #include <cassert>
 #include <vector>
+#include <stdexcept>
 
 #include "runtime.h"
 
 class Program;
 
-
-
 /**
  * Represents a runtime error.
  */
-class RuntimeError : public std::runtime_error {
+class RuntimeError : public std::runtime_error
+{
 public:
   RuntimeError(const std::string &msg) : std::runtime_error(msg) {}
 };
@@ -22,17 +22,21 @@ public:
 /**
  * Interpreter for the bytecode.
  */
-class Interp {
+class Interp
+{
 public:
   /// A dynamically-typed value stored on top of the stack.
-  struct Value {
-    enum class Kind {
+  struct Value
+  {
+    enum class Kind
+    {
       PROTO,
       ADDR,
       INT,
     } Kind;
 
-    union {
+    union
+    {
       RuntimeFn Proto;
       size_t Addr;
       int64_t Int;
@@ -43,12 +47,16 @@ public:
     Value(size_t val) : Kind(Kind::ADDR) { Val.Addr = val; }
     Value(int64_t val) : Kind(Kind::INT) { Val.Int = val; }
 
-    operator bool () const
+    operator bool() const
     {
-      switch (Kind) {
-        case Kind::PROTO: return true;
-        case Kind::ADDR: return true;
-        case Kind::INT: return Val.Int != 0;
+      switch (Kind)
+      {
+      case Kind::PROTO:
+        return true;
+      case Kind::ADDR:
+        return true;
+      case Kind::INT:
+        return Val.Int != 0;
       }
       return false;
     }

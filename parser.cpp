@@ -137,6 +137,13 @@ std::shared_ptr<Expr> Parser::ParseTermExpr()
 {
   auto tk = Current();
   switch (tk.GetKind()) {
+  case Token::Kind::INT: {
+      uint64_t val(tk.GetInteger());
+      lexer_.Next();
+          return std::static_pointer_cast<Expr>(
+              std::make_shared<IntExpr>(val)
+              );
+  }
     case Token::Kind::IDENT: {
       std::string ident(tk.GetIdent());
       lexer_.Next();

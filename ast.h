@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <variant>
+#include <string>
 
 
 /**
@@ -45,6 +46,7 @@ public:
     REF,
     BINARY,
     CALL,
+    INTEGER
   };
 
 public:
@@ -55,6 +57,24 @@ public:
 private:
   /// Kind of the expression.
   Kind kind_;
+};
+
+/**
+ * Expression that evaluates to an integer.
+ */
+class IntExpr : public Expr {
+public:
+    IntExpr(const uint64_t val)
+        : Expr(Kind::INTEGER)
+        , val_(val)
+    {
+    }
+
+    const uint64_t GetValue() const { return val_; }
+
+private:
+    /// Value of the the integer.
+    uint64_t val_;
 };
 
 /**

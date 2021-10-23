@@ -2,10 +2,10 @@
 
 #pragma once
 
-
 class Module;
 
-class Verifier {
+class Verifier
+{
 public:
-  void Verify(const Module &stat);
+    void Verify(const Module &stat);
 };

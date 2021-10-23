@@ -7,10 +7,8 @@
 
 class Interp;
 
-
-
 /// Signature of runtime methods.
-typedef void (*RuntimeFn) (Interp &);
+typedef void (*RuntimeFn)(Interp &);
 
 /// Map of all runtime functions.
 extern std::map<std::string, RuntimeFn> kRuntimeFns;

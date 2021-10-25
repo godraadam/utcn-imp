@@ -1,3 +1,9 @@
+#Build
 Debug
 Release
+
+#VS code
 .vscode/
+
+#notes for myself
+language-spec.md

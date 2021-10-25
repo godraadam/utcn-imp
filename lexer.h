@@ -40,20 +40,39 @@ public:
         FUNC,
         RETURN,
         WHILE,
-        // Symbols.
-        LPAREN,
-        RPAREN,
-        LBRACE,
-        RBRACE,
-        COLON,
-        SEMI,
-        EQUAL,
-        COMMA,
-        PLUS,
-        // Complex tokens.
+        LET,
+        IF,
+        ELSE,
+
+        // Single Symbols.
+        LPAREN, // (
+        RPAREN, // )
+        LBRACE, // {
+        RBRACE, // }
+        COLON,  // :
+        SEMI,   // ;
+        EQ,     // =
+        COMMA,  // ,
+        PLUS,   // +
+        MINUS,  // -
+        MOD,    // %
+        STAR,   // *
+        SLASH,  // /
+
+        // Double Symbols
+        EQEQ,   // ==
+        NEQ,  // !=
+        LEQ,    // <=
+        GREQ,   // >=
+        INCR,   // ++
+        DECR,   // --
+
+        // Literals
         INT,
         STRING,
         IDENT,
+
+        //EOF
         END,
     };
 
@@ -102,18 +121,41 @@ public:
 
     // Helpers to build tokens.
     static Token End(const Location &l) { return Token(l, Kind::END); }
+
     static Token LParen(const Location &l) { return Token(l, Kind::LPAREN); }
     static Token RParen(const Location &l) { return Token(l, Kind::RPAREN); }
     static Token LBrace(const Location &l) { return Token(l, Kind::LBRACE); }
     static Token RBrace(const Location &l) { return Token(l, Kind::RBRACE); }
+
     static Token Colon(const Location &l) { return Token(l, Kind::COLON); }
-    static Token Semi(const Location &l) { return Token(l, Kind::SEMI); }
-    static Token Equal(const Location &l) { return Token(l, Kind::EQUAL); }
-    static Token Plus(const Location &l) { return Token(l, Kind::PLUS); }
     static Token Comma(const Location &l) { return Token(l, Kind::COMMA); }
+    static Token Semi(const Location &l) { return Token(l, Kind::SEMI); }
+
+    static Token Equal(const Location &l) { return Token(l, Kind::EQ); }
+    static Token DEqual(const Location &l) { return Token(l, Kind::EQEQ); }
+    static Token GrEqual(const Location &l) { return Token(l, Kind::GREQ); }
+    static Token LeEqual(const Location &l) { return Token(l, Kind::LEQ); }
+    static Token NotEqual(const Location &l) { return Token(l, Kind::NEQ); }
+
+    static Token Plus(const Location &l) { return Token(l, Kind::PLUS); }
+    static Token Incr(const Location &l) { return Token(l, Kind::INCR); }
+
+    static Token Minus(const Location &l) { return Token(l, Kind::MINUS); }
+    static Token Decr(const Location &l) { return Token(l, Kind::DECR); }
+
+    static Token Star(const Location &l) { return Token(l, Kind::STAR); }
+    static Token Slash(const Location &l) { return Token(l, Kind::SLASH); }
+    static Token Mod(const Location &l) { return Token(l, Kind::MOD); }
+
     static Token Func(const Location &l) { return Token(l, Kind::FUNC); }
     static Token Return(const Location &l) { return Token(l, Kind::RETURN); }
+
+    static Token Let(const Location &l) { return Token(l, Kind::LET); }
+
+    static Token If(const Location &l) { return Token(l, Kind::IF); }
+    static Token Else(const Location &l) { return Token(l, Kind::ELSE); }
     static Token While(const Location &l) { return Token(l, Kind::WHILE); }
+
     static Token Ident(const Location &l, const std::string &str);
     static Token String(const Location &l, const std::string &str);
     static Token Integer(const Location &l, const uint64_t);
@@ -174,6 +216,10 @@ public:
 private:
     /// Advance the stream to the next character. Return '\0' on EOF.
     void NextChar();
+
+    /// Get next character without advancing the stream. Return 
+    char PeekChar();
+
     /// Return the location of the current token.
     Location GetLocation() const { return {name_, lineNo_, charNo_}; }
     /// Report an error.

@@ -148,6 +148,12 @@ std::ostream &operator<<(std::ostream &os, const Token::Kind kind)
         return os << "return";
     case Token::Kind::WHILE:
         return os << "while";
+    case Token::Kind::LET:
+        return os << "let";
+    case Token::Kind::IF:
+        return os << "if";
+    case Token::Kind::ELSE:
+        return os << "else";
     case Token::Kind::LPAREN:
         return os << "(";
     case Token::Kind::RPAREN:
@@ -160,12 +166,32 @@ std::ostream &operator<<(std::ostream &os, const Token::Kind kind)
         return os << ":";
     case Token::Kind::SEMI:
         return os << ";";
-    case Token::Kind::EQUAL:
+    case Token::Kind::EQ:
         return os << "=";
+    case Token::Kind::EQEQ:
+        return os << "==";
+    case Token::Kind::GREQ:
+        return os << ">=";
+    case Token::Kind::LEQ:
+        return os << "<=";
+    case Token::Kind::NEQ:
+        return os << "!=";
     case Token::Kind::COMMA:
         return os << ",";
     case Token::Kind::PLUS:
         return os << "+";
+    case Token::Kind::INCR:
+        return os << "++";
+    case Token::Kind::MINUS:
+        return os << "-";
+    case Token::Kind::DECR:
+        return os << "--";
+    case Token::Kind::STAR:
+        return os << "*";
+    case Token::Kind::SLASH:
+        return os << "/";
+    case Token::Kind::MOD:
+        return os << "%";
     case Token::Kind::END:
         return os << "END";
     case Token::Kind::INT:
@@ -239,10 +265,28 @@ const Token &Lexer::Next()
         return NextChar(), tk_ = Token::Colon(loc);
     case ';':
         return NextChar(), tk_ = Token::Semi(loc);
+    case '*':
+        return NextChar(), tk_ = Token::Star(loc);
+    case '/':
+        return NextChar(), tk_ = Token::Slash(loc);
+    case '%':
+        return NextChar(), tk_ = Token::Mod(loc);
+
     case '=':
+        if (PeekChar() == '=')
+            return NextChar(), NextChar(), tk_ = Token::DEqual(loc);
         return NextChar(), tk_ = Token::Equal(loc);
+
     case '+':
+        if (PeekChar() == '+')
+            return NextChar(), NextChar(), tk_ = Token::Incr(loc);
         return NextChar(), tk_ = Token::Plus(loc);
+
+    case '-':
+        if (PeekChar() == '-')
+            return NextChar(), NextChar(), tk_ = Token::Decr(loc);
+        return NextChar(), tk_ = Token::Minus(loc);
+
     case ',':
         return NextChar(), tk_ = Token::Comma(loc);
     case '"':
@@ -278,7 +322,8 @@ const Token &Lexer::Next()
                 val = std::stod(word);
             }
             catch (std::out_of_range e)
-            { //invalid argument exception should not occur if tokenizer logic is solid
+            { 
+                //invalid argument exception should not occur if tokenizer logic is solid
                 Error("Integer literal out of range!\n");
             }
 
@@ -298,6 +343,12 @@ const Token &Lexer::Next()
                 return tk_ = Token::Return(loc);
             if (word == "while")
                 return tk_ = Token::While(loc);
+            if (word == "let")
+                return tk_ = Token::Let(loc);
+            if (word == "if")
+                return tk_ = Token::If(loc);
+            if (word == "else")
+                return tk_ = Token::Else(loc);
             return tk_ = Token::Ident(loc, word);
         }
         Error("unknown character '" + std::string(1, chr_) + "'");
@@ -325,6 +376,16 @@ void Lexer::NextChar()
         }
         is_.get(chr_);
     }
+}
+
+// -----------------------------------------------------------------------------
+char Lexer::PeekChar()
+{
+    if (is_.eof())
+    {
+        return '\0';
+    }
+    return is_.peek();
 }
 
 // -----------------------------------------------------------------------------

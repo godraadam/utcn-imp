@@ -154,8 +154,8 @@ private:
     void EmitPeek(uint32_t index);
     /// Emit a return instruction.
     void EmitReturn();
-    /// Emit an add opcode.
-    void EmitAdd();
+    /// Emit an add or sub opcode.
+    void EmitAddOrSub(Opcode opcode);
     /// Emit a label.
     void EmitLabel(Label label);
     /// Emit a conditional jump.

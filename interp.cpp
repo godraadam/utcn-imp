@@ -64,6 +64,13 @@ void Interp::Run()
             Push(lhs + rhs);
             continue;
         }
+        case Opcode::SUB:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs - rhs);
+            continue;
+        }
         case Opcode::RET:
         {
             auto depth = prog_.Read<unsigned>(pc_);

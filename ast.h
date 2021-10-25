@@ -25,7 +25,8 @@ public:
         BLOCK,
         WHILE,
         EXPR,
-        RETURN
+        RETURN,
+        IF
     };
 
 public:
@@ -108,7 +109,8 @@ public:
     /// Enumeration of binary operators.
     enum class Kind
     {
-        ADD
+        ADD,
+        SUB
     };
 
 public:
@@ -214,6 +216,28 @@ public:
 private:
     /// Expression to be returned.
     std::shared_ptr<Expr> expr_;
+};
+
+/**
+ * If statement.
+ */
+class IfStmt final : public Stmt
+{
+public:
+    IfStmt(std::shared_ptr<Expr> cond, std::shared_ptr<Stmt> ifTrue, std::shared_ptr<Stmt> ifFalse)
+        : Stmt(Kind::IF), cond_(cond), tstmt_(ifTrue), fstmt_(ifFalse)
+    {
+    }
+
+    const Stmt &GetTrueBranchStmt() const { return *tstmt_; }
+    const Stmt &GetFalseBranchStmt() const { return *fstmt_; }
+    const Expr &GetCondition() const { return *cond_; }
+
+private:
+    /// Expression to be returned.
+    std::shared_ptr<Stmt> tstmt_;
+    std::shared_ptr<Stmt> fstmt_;
+    std::shared_ptr<Expr> cond_;
 };
 
 /**

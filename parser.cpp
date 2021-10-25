@@ -56,7 +56,7 @@ std::shared_ptr<Module> Parser::ParseModule()
             Expect(Token::Kind::COLON);
             std::string type(Expect(Token::Kind::IDENT).GetIdent());
 
-            if (lexer_.Next().Is(Token::Kind::EQUAL))
+            if (lexer_.Next().Is(Token::Kind::EQ))
             {
                 std::string primitive(Expect(Token::Kind::STRING).GetString());
                 lexer_.Next();
@@ -95,6 +95,8 @@ std::shared_ptr<Stmt> Parser::ParseStmt()
         return ParseReturnStmt();
     case Token::Kind::WHILE:
         return ParseWhileStmt();
+    case Token::Kind::IF:
+        return ParseIfStmt();
     case Token::Kind::LBRACE:
         return ParseBlockStmt();
     default:
@@ -141,6 +143,26 @@ std::shared_ptr<WhileStmt> Parser::ParseWhileStmt()
     lexer_.Next();
     auto stmt = ParseStmt();
     return std::make_shared<WhileStmt>(cond, stmt);
+}
+
+// -----------------------------------------------------------------------------
+std::shared_ptr<IfStmt> Parser::ParseIfStmt()
+{
+    Check(Token::Kind::IF);
+    Expect(Token::Kind::LPAREN);
+    lexer_.Next();
+    auto cond = ParseExpr();
+    Check(Token::Kind::RPAREN);
+    lexer_.Next();
+    auto tstmt = ParseStmt();
+
+    //if no else branch, return stmt with null as falsy statement for now
+    if (!Current().Is(Token::Kind::ELSE))
+        return std::make_shared<IfStmt>(cond, tstmt, nullptr);
+    //otherwise parse false branch
+    //lexer_.Next();
+    auto fstmt = ParseStmt();
+    return std::make_shared<IfStmt>(cond, tstmt, fstmt);
 }
 
 // -----------------------------------------------------------------------------
@@ -198,11 +220,13 @@ std::shared_ptr<Expr> Parser::ParseCallExpr()
 std::shared_ptr<Expr> Parser::ParseAddSubExpr()
 {
     std::shared_ptr<Expr> term = ParseCallExpr();
-    while (Current().Is(Token::Kind::PLUS))
+    auto kind = Current().GetKind();
+    while (kind == Token::Kind::PLUS || kind == Token::Kind::MINUS)
     {
         lexer_.Next();
         auto rhs = ParseCallExpr();
-        term = std::make_shared<BinaryExpr>(BinaryExpr::Kind::ADD, term, rhs);
+        term = (kind == Token::Kind::PLUS) ? std::make_shared<BinaryExpr>(BinaryExpr::Kind::ADD, term, rhs)
+                                           : std::make_shared<BinaryExpr>(BinaryExpr::Kind::SUB, term, rhs);
     }
     return term;
 }

@@ -234,9 +234,10 @@ void Codegen::LowerBinaryExpr(const Scope &scope, const BinaryExpr &binary)
     switch (binary.GetKind())
     {
     case BinaryExpr::Kind::ADD:
-    {
-        return EmitAdd();
-    }
+        return EmitAddOrSub(Opcode::ADD);
+    case BinaryExpr::Kind::SUB:
+        return EmitAddOrSub(Opcode::SUB);
+    //add mul and division later
     }
 }
 
@@ -374,12 +375,13 @@ void Codegen::EmitReturn()
 }
 
 // -----------------------------------------------------------------------------
-void Codegen::EmitAdd()
+void Codegen::EmitAddOrSub(Opcode opcode)
 {
     assert(depth_ > 0 && "no elements on stack");
     depth_ -= 1;
-    Emit<Opcode>(Opcode::ADD);
+    Emit<Opcode>(opcode);
 }
+
 
 // -----------------------------------------------------------------------------
 void Codegen::EmitJumpFalse(Label label)

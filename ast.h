@@ -313,6 +313,7 @@ private:
 
 /**
  * If statement.
+ * if (<expr>) <stmt> else <stmt>
  */
 class IfStmt final : public Stmt
 {
@@ -332,8 +333,9 @@ public:
     }
 
 private:
-    /// Expression to be returned.
+    /// statement to execute if condition is met
     std::shared_ptr<Stmt> tstmt_;
+    /// statement to execute if condition is not met
     std::shared_ptr<Stmt> fstmt_;
     std::shared_ptr<Expr> cond_;
 };
@@ -367,9 +369,9 @@ private:
 };
 
 /**
- * While statement.
+ * Variable declaration statement.
  *
- * while (<cond>) <stmt>
+ * let <ident> : <type> = <expr>;
  */
 class VarDeclStmt final : public Stmt
 {
@@ -389,7 +391,7 @@ public:
     }
 
 private:
-    /// Condition for the loop.
+
     std::string name_;
     std::string type_;
     std::shared_ptr<Expr> expr_;

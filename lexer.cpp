@@ -154,6 +154,10 @@ std::ostream &operator<<(std::ostream &os, const Token::Kind kind)
         return os << "if";
     case Token::Kind::ELSE:
         return os << "else";
+    case Token::Kind::TRUE:
+        return os << "true";
+    case Token::Kind::FALSE:
+        return os << "false";
     case Token::Kind::LPAREN:
         return os << "(";
     case Token::Kind::RPAREN:
@@ -166,8 +170,14 @@ std::ostream &operator<<(std::ostream &os, const Token::Kind kind)
         return os << ":";
     case Token::Kind::SEMI:
         return os << ";";
+    case Token::Kind::BANG:
+        return os << "!";
     case Token::Kind::EQ:
         return os << "=";
+    case Token::Kind::LE:
+        return os << "<";
+    case Token::Kind::GR:
+        return os << ">";
     case Token::Kind::EQEQ:
         return os << "==";
     case Token::Kind::GREQ:
@@ -271,7 +281,12 @@ const Token &Lexer::Next()
         return NextChar(), tk_ = Token::Slash(loc);
     case '%':
         return NextChar(), tk_ = Token::Mod(loc);
-
+    case '!':
+        return NextChar(), tk_ = Token::Bang(loc);
+    case '<':
+        return NextChar(), tk_ = Token::Less(loc);
+    case '>':
+        return NextChar(), tk_ = Token::Greater(loc);
     case '=':
         if (PeekChar() == '=')
             return NextChar(), NextChar(), tk_ = Token::DEqual(loc);
@@ -349,6 +364,10 @@ const Token &Lexer::Next()
                 return tk_ = Token::If(loc);
             if (word == "else")
                 return tk_ = Token::Else(loc);
+            if (word == "true")
+                return tk_ = Token::True(loc);
+            if (word == "false")
+                return tk_ = Token::False(loc);
             return tk_ = Token::Ident(loc, word);
         }
         Error("unknown character '" + std::string(1, chr_) + "'");

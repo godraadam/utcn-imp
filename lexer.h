@@ -43,6 +43,8 @@ public:
         LET,
         IF,
         ELSE,
+        TRUE,
+        FALSE,
 
         // Single Symbols.
         LPAREN, // (
@@ -56,8 +58,11 @@ public:
         PLUS,   // +
         MINUS,  // -
         MOD,    // %
+        BANG,   // !
         STAR,   // *
         SLASH,  // /
+        LE,     // <
+        GR,     // >
 
         // Double Symbols
         EQEQ,   // ==
@@ -132,10 +137,13 @@ public:
     static Token Semi(const Location &l) { return Token(l, Kind::SEMI); }
 
     static Token Equal(const Location &l) { return Token(l, Kind::EQ); }
+
     static Token DEqual(const Location &l) { return Token(l, Kind::EQEQ); }
     static Token GrEqual(const Location &l) { return Token(l, Kind::GREQ); }
     static Token LeEqual(const Location &l) { return Token(l, Kind::LEQ); }
     static Token NotEqual(const Location &l) { return Token(l, Kind::NEQ); }
+    static Token Less(const Location &l) { return Token(l, Kind::LE); }
+    static Token Greater(const Location &l) { return Token(l, Kind::GR); }
 
     static Token Plus(const Location &l) { return Token(l, Kind::PLUS); }
     static Token Incr(const Location &l) { return Token(l, Kind::INCR); }
@@ -146,6 +154,7 @@ public:
     static Token Star(const Location &l) { return Token(l, Kind::STAR); }
     static Token Slash(const Location &l) { return Token(l, Kind::SLASH); }
     static Token Mod(const Location &l) { return Token(l, Kind::MOD); }
+    static Token Bang(const Location &l) { return Token(l, Kind::BANG); }
 
     static Token Func(const Location &l) { return Token(l, Kind::FUNC); }
     static Token Return(const Location &l) { return Token(l, Kind::RETURN); }
@@ -155,6 +164,8 @@ public:
     static Token If(const Location &l) { return Token(l, Kind::IF); }
     static Token Else(const Location &l) { return Token(l, Kind::ELSE); }
     static Token While(const Location &l) { return Token(l, Kind::WHILE); }
+    static Token True(const Location &l) { return Token(l, Kind::TRUE); }
+    static Token False(const Location &l) { return Token(l, Kind::FALSE); }
 
     static Token Ident(const Location &l, const std::string &str);
     static Token String(const Location &l, const std::string &str);

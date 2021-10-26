@@ -41,15 +41,32 @@ private:
     std::shared_ptr<WhileStmt> ParseWhileStmt();
     // Parse an if or if-else statement
     std::shared_ptr<IfStmt> ParseIfStmt();
+    // Parse a variable declaration statement
+    std::shared_ptr<VarDeclStmt> ParseVarDeclStmt();
 
     /// Parse a single expression.
-    std::shared_ptr<Expr> ParseExpr() { return ParseAddSubExpr(); }
+    std::shared_ptr<Expr> ParseExpr() { 
+        //equality
+        //comparison
+        //muldiv
+        //unary
+        //literals, paranthesis
+        return ParseEqualityExpr(); 
+        }
     /// Parse an expression which has no operators.
     std::shared_ptr<Expr> ParseTermExpr();
     /// Parse a call expression.
     std::shared_ptr<Expr> ParseCallExpr();
     /// Parse an add/sub expression.
     std::shared_ptr<Expr> ParseAddSubExpr();
+    /// Parse an equality expression (==, !=).
+    std::shared_ptr<Expr> ParseEqualityExpr();
+    /// Parse an inequality expression (<=, >=, <, >).
+    std::shared_ptr<Expr> ParseComparisonExpr();
+    /// Parse a mult. or div. operation (*, /)
+    std::shared_ptr<Expr> ParseMulDivExpr();
+    /// Parse unary expression (-1, !true)
+    std::shared_ptr<Expr> ParseUnaryExpr();
 
     /// Helper to get the current token.
     inline const Token &Current() { return lexer_.GetToken(); }

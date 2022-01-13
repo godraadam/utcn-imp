@@ -31,12 +31,17 @@ enum class Opcode : uint8_t
     GR,
     GREQ,
     RET,
+    
+    NEG,
+    NOT,
 
     JUMP_FALSE,
     JUMP,
     STOP,
 
-    PUSH_INT
+    PUSH_INT,
+    PUSH_STRING,
+    PUSH_BOOL
 };
 
 /**

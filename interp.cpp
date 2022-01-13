@@ -54,6 +54,14 @@ void Interp::Run()
             {
                 throw RuntimeError("cannot call integer");
             }
+            case Value::Kind::BOOL:
+            {
+                throw RuntimeError("cannot call boolean");
+            }
+            case Value::Kind::STRING:
+            {
+                throw RuntimeError("cannot call string");
+            }
             }
             continue;
         }
@@ -92,6 +100,61 @@ void Interp::Run()
             Push(lhs % rhs);
             continue;
         }
+        
+        case Opcode::EQ:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs == rhs);
+            continue;
+        }
+        case Opcode::NEQ:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs != rhs);
+            continue;
+        }
+        case Opcode::LEQ:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs <= rhs);
+            continue;
+        }
+        case Opcode::GREQ:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs >= rhs);
+            continue;
+        }
+        case Opcode::LE:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs < rhs);
+            continue;
+        }
+        case Opcode::GR:
+        {
+            auto rhs = PopInt();
+            auto lhs = PopInt();
+            Push(lhs > rhs);
+            continue;
+        }
+        case Opcode::NEG:
+        {
+            auto opr = PopInt();
+            Push(-opr);
+            continue;
+        }
+        case Opcode::NOT:
+        {
+            auto opr = PopBool();
+            Push(!opr);
+            continue;
+        }
         case Opcode::RET:
         {
             auto depth = prog_.Read<unsigned>(pc_);
@@ -123,6 +186,16 @@ void Interp::Run()
             auto val = prog_.Read<int64_t>(pc_);
             Push(val);
             continue;
+        }
+        case Opcode::PUSH_BOOL:
+        {
+            auto val = prog_.Read<bool>(pc_);
+            Push(val);
+            continue;
+        }
+        case Opcode::PUSH_STRING:
+        {
+            throw std::logic_error("Not yet implemented");
         }
         case Opcode::STOP:
         {

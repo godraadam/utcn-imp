@@ -33,6 +33,8 @@ public:
             PROTO,
             ADDR,
             INT,
+            BOOL,
+            STRING
         } Kind;
 
         union
@@ -40,13 +42,14 @@ public:
             RuntimeFn Proto;
             size_t Addr;
             int64_t Int;
+            bool Bool;
         } Val;
 
         Value() : Kind(Kind::INT) { Val.Int = 0; }
         Value(RuntimeFn val) : Kind(Kind::PROTO) { Val.Proto = val; }
         Value(size_t val) : Kind(Kind::ADDR) { Val.Addr = val; }
         Value(int64_t val) : Kind(Kind::INT) { Val.Int = val; }
-
+        Value(bool val) : Kind(Kind::BOOL) { Val.Bool = val; }
         operator bool() const
         {
             switch (Kind)
@@ -57,6 +60,10 @@ public:
                 return true;
             case Kind::INT:
                 return Val.Int != 0;
+            case Kind::BOOL:
+                return Val.Bool;
+            default:
+                throw std::logic_error("Not yet implemented");
             }
             return false;
         }
@@ -85,6 +92,14 @@ public:
         assert(v.Kind == Value::Kind::INT);
         return v.Val.Int;
     }
+    
+     /// Pop a boolean from the stack.
+    int64_t PopBool()
+    {
+        auto v = Pop();
+        assert(v.Kind == Value::Kind::BOOL);
+        return v.Val.Bool;
+    }
 
     /// Pop an address from the stack.
     int64_t PopAddr()
@@ -100,6 +115,14 @@ public:
         auto v = *stack_.rbegin();
         assert(v.Kind == Value::Kind::INT);
         return v.Val.Int;
+    }
+    
+    /// Look at the integer on top of the stack.
+    bool PeekBool()
+    {
+        auto v = *stack_.rbegin();
+        assert(v.Kind == Value::Kind::BOOL);
+        return v.Val.Bool;
     }
 
     /// Add a value to the stack.

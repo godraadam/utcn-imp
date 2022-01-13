@@ -13,6 +13,13 @@ static void PrintInt(Interp &interp)
     interp.Push<int64_t>(v);
 }
 
+static void PrintBool(Interp &interp)
+{
+    auto v = interp.PeekBool();
+    std::cout << (v ? "true" : "false");
+    interp.Push<bool>(v);
+}
+
 // -----------------------------------------------------------------------------
 static void ReadInt(Interp &interp)
 {
@@ -24,4 +31,5 @@ static void ReadInt(Interp &interp)
 // -----------------------------------------------------------------------------
 std::map<std::string, RuntimeFn> kRuntimeFns = {
     {"print_int", PrintInt},
-    {"read_int", ReadInt}};
+    {"read_int", ReadInt},
+    {"print_bool", PrintBool}};

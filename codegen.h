@@ -123,6 +123,9 @@ private:
     void LowerReturnStmt(const Scope &scope, const ReturnStmt &returnStmt);
     /// Lowers a standalone expression statement.
     void LowerExprStmt(const Scope &scope, const ExprStmt &exprStmt);
+    /// Lowers an if statement.
+    void LowerIfStmt(const Scope &scope, const IfStmt &ifstmt);
+    
 
     /// Lowers a single expression.
     void LowerExpr(const Scope &scope, const Expr &expr);
@@ -130,11 +133,15 @@ private:
     void LowerRefExpr(const Scope &scope, const RefExpr &expr);
     /// Lowers a binary expression.
     void LowerBinaryExpr(const Scope &scope, const BinaryExpr &expr);
+    /// Lowers a unary expression.
+    void LowerUnaryExpr(const Scope &scope, const UnaryExpr &unary);
     /// Lowers a call expression.
     void LowerCallExpr(const Scope &scope, const CallExpr &expr);
 
     void LowerIntegerExpr(const Scope &scope, const IntExpr &val);
-
+    void LowerStringExpr(const Scope &scope, const StringExpr &val);
+    void LowerBoolExpr(const Scope &scope, const BoolExpr &val);
+    
     /// Lowers a function declaration.
     void LowerFuncDecl(const Scope &scope, const FuncDecl &funcDecl);
 
@@ -156,6 +163,8 @@ private:
     void EmitReturn();
     /// Emit an add or sub opcode.
     void EmitBinary(Opcode opcode);
+    /// Emit an meg or not opcode.
+    void EmitUnary(Opcode opcode);
     /// Emit a label.
     void EmitLabel(Label label);
     /// Emit a conditional jump.
@@ -164,7 +173,9 @@ private:
     void EmitJump(Label label);
 
     void EmitInt(uint64_t val);
-
+    void EmitString(const std::string_view& val);
+    void EmitBool(bool val);
+    
     /// Emit some bytes of code.
     template <typename T>
     void Emit(const T &t);

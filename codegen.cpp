@@ -133,9 +133,9 @@ void Codegen::LowerStmt(const Scope &scope, const Stmt &stmt)
     {
         return LowerReturnStmt(scope, static_cast<const ReturnStmt &>(stmt));
     }
-    case Stmt::Kind::IF:
-        throw std::logic_error("Not implemented");
-    
+    case Stmt::Kind::IF: {
+        return LowerIfStmt(scope, static_cast<const IfStmt&>(stmt));
+    }
     case Stmt::Kind::ELSE:
         throw std::logic_error("Not implemented");
      
@@ -171,6 +171,43 @@ void Codegen::LowerWhileStmt(const Scope &scope, const WhileStmt &whileStmt)
     EmitJump(entry);
     EmitLabel(exit);
 }
+
+// -----------------------------------------------------------------------------
+void Codegen::LowerIfStmt(const Scope &scope, const IfStmt &ifstmt)
+{
+    
+    // What is wrong here
+    auto exit = MakeLabel();
+    
+    if (ifstmt.GetFStmt() != nullptr) {
+        auto elseEntry = MakeLabel();
+        LowerExpr(scope, ifstmt.GetCond());
+        EmitJumpFalse(elseEntry);
+        LowerStmt(scope, ifstmt.GetTStmt());
+        EmitJump(exit);
+        EmitLabel(elseEntry);
+        LowerStmt(scope, *ifstmt.GetFStmt());
+        EmitLabel(exit);
+    } else {
+        LowerExpr(scope, ifstmt.GetCond());
+        EmitJumpFalse(exit);
+        LowerStmt(scope, ifstmt.GetTStmt());
+        EmitLabel(exit);
+    }
+}
+
+
+// -----------------------------------------------------------------------------
+// void Codegen::LowerElseStmt(const Scope &scope, const IfStmt &ifstmt)
+// {
+//     auto entry = MakeLabel();
+//     auto exit = MakeLabel();
+
+//     LowerExpr(scope, ifstmt.GetCond());
+//     EmitJumpFalse(exit);
+//     LowerStmt(scope, ifstmt.GetTrueBranchStmt());
+//     EmitLabel(exit);
+// }
 
 // -----------------------------------------------------------------------------
 void Codegen::LowerReturnStmt(const Scope &scope, const ReturnStmt &retStmt)
@@ -209,16 +246,15 @@ void Codegen::LowerExpr(const Scope &scope, const Expr &expr)
     }
     case Expr::Kind::STRING:
     {
-        throw std::logic_error("Not implemented");
+        return LowerStringExpr(scope, static_cast<const StringExpr&>(expr));
     }
-    
     case Expr::Kind::BOOL:
     {
-        throw std::logic_error("Not implemented");
+        return LowerBoolExpr(scope, static_cast<const BoolExpr&>(expr));
     }
     case Expr::Kind::UNARY:
     {
-        throw std::logic_error("Not implemented");
+        return LowerUnaryExpr(scope, static_cast<const UnaryExpr&>(expr));
     }
     }
 }
@@ -291,6 +327,21 @@ void Codegen::LowerBinaryExpr(const Scope &scope, const BinaryExpr &binary)
 }
 
 // -----------------------------------------------------------------------------
+void Codegen::LowerUnaryExpr(const Scope &scope, const UnaryExpr &unary)
+{
+    LowerExpr(scope, unary.GetOperand());
+    switch (unary.GetKind())
+    {
+    case UnaryExpr::Kind::NOT:
+         EmitUnary(Opcode::NOT);
+         break;
+    case UnaryExpr::Kind::NEG:
+         EmitUnary(Opcode::NEG);
+         break;
+    }
+}
+
+// -----------------------------------------------------------------------------
 void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
 {
     for (auto it = call.arg_rbegin(), end = call.arg_rend(); it != end; ++it)
@@ -306,6 +357,18 @@ void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
 void Codegen::LowerIntegerExpr(const Scope &scope, const IntExpr &val)
 {
     EmitInt(val.GetValue());
+}
+
+// -----------------------------------------------------------------------------
+void Codegen::LowerStringExpr(const Scope &scope, const StringExpr &val)
+{
+    EmitString(val.GetString());
+}
+
+// -----------------------------------------------------------------------------
+void Codegen::LowerBoolExpr(const Scope &scope, const BoolExpr &val)
+{
+    EmitBool(val.GetBool());
 }
 
 // -----------------------------------------------------------------------------
@@ -430,6 +493,13 @@ void Codegen::EmitBinary(Opcode opcode)
     Emit<Opcode>(opcode);
 }
 
+// -----------------------------------------------------------------------------
+void Codegen::EmitUnary(Opcode opcode)
+{
+    assert(depth_ > 0 && "no elements on stack");
+    depth_ -= 1;
+    Emit<Opcode>(opcode);
+}
 
 // -----------------------------------------------------------------------------
 void Codegen::EmitJumpFalse(Label label)
@@ -452,4 +522,18 @@ void Codegen::EmitInt(uint64_t val)
     depth_ += 1;
     Emit<Opcode>(Opcode::PUSH_INT);
     Emit<int64_t>(val);
+}
+
+void Codegen::EmitString(const std::string_view& val)
+{
+    depth_ += 1;
+    Emit<Opcode>(Opcode::PUSH_STRING);
+    Emit<std::string_view>(val);
+}
+
+void Codegen::EmitBool(bool val)
+{
+    depth_ += 1;
+    Emit<Opcode>(Opcode::PUSH_BOOL);
+    Emit<bool>(val);
 }

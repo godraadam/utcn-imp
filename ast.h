@@ -100,7 +100,7 @@ public:
     {
     }
 
-    bool GetValue() const { return val_; }
+    bool GetBool() const { return val_; }
 
 private:
     /// Value of the the boolean.
@@ -313,9 +313,9 @@ public:
     {
     }
 
-    const Stmt &GetTrueBranchStmt() const { return *tstmt_; }
-    const Stmt &GetFalseBranchStmt() const { return *fstmt_; }
-    const Expr &GetCondition() const { return *cond_; }
+    const Stmt &GetTStmt() const { return *tstmt_; }
+    const std::shared_ptr<Stmt> GetFStmt() const { return fstmt_; }
+    const Expr &GetCond() const { return *cond_; }
 private:
     /// statement to execute if condition is met
     std::shared_ptr<Stmt> tstmt_;

@@ -21,6 +21,15 @@ enum class Opcode : uint8_t
 
     ADD,
     SUB,
+    MUL,
+    DIV,
+    MOD,
+    EQ,
+    NEQ,
+    LE,
+    LEQ,
+    GR,
+    GREQ,
     RET,
 
     JUMP_FALSE,

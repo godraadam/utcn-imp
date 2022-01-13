@@ -7,14 +7,11 @@
 #include <variant>
 #include <iostream>
 #include <string>
-
 /**
  * Base class for all AST nodes.
  */
 class Node
 {
-    public:
-    virtual void print(std::ostream& os) const {};
 };
 
 /**
@@ -30,12 +27,12 @@ public:
         EXPR,
         RETURN,
         VARDECL,
-        IF
+        IF,
+        ELSE
     };
 
 public:
     Kind GetKind() const { return kind_; }
-    virtual void print(std::ostream os) const {};
 
 protected:
     Stmt(Kind kind) : kind_(kind) {}
@@ -85,7 +82,7 @@ public:
     {
     }
 
-    const uint64_t GetValue() const { return val_; }
+    uint64_t GetValue() const { return val_; }
 
 private:
     /// Value of the the integer.
@@ -103,7 +100,7 @@ public:
     {
     }
 
-    const bool GetValue() const { return val_; }
+    bool GetValue() const { return val_; }
 
 private:
     /// Value of the the boolean.
@@ -262,13 +259,6 @@ public:
 
     BlockList::const_iterator begin() const { return body_.begin(); }
     BlockList::const_iterator end() const { return body_.end(); }
-    void print(std::ostream& os) const override {
-        os << "[BLOCK STATEMENT] {";
-        for (auto& it : body_) {
-            os << it << std::endl;
-        }
-        os << '}\n';
-    }
 
 private:
     /// Statements in the body of the block.
@@ -319,19 +309,13 @@ class IfStmt final : public Stmt
 {
 public:
     IfStmt(std::shared_ptr<Expr> cond, std::shared_ptr<Stmt> ifTrue, std::shared_ptr<Stmt> ifFalse)
-        : Stmt(Kind::IF), cond_(cond), tstmt_(ifTrue), fstmt_(ifFalse)
+        : Stmt(Kind::IF), tstmt_(ifTrue), fstmt_(ifFalse), cond_(cond)
     {
     }
 
     const Stmt &GetTrueBranchStmt() const { return *tstmt_; }
     const Stmt &GetFalseBranchStmt() const { return *fstmt_; }
     const Expr &GetCondition() const { return *cond_; }
-    void print(std::ostream& os) const override {
-        os << "[IF STATEMENT] cond : " << cond_ << std::endl;
-        os << "if true : " << tstmt_ << std::endl;
-        os << "if true : " << fstmt_ << std::endl;
-    }
-
 private:
     /// statement to execute if condition is met
     std::shared_ptr<Stmt> tstmt_;
@@ -356,11 +340,6 @@ public:
     const Expr &GetCond() const { return *cond_; }
     const Stmt &GetStmt() const { return *stmt_; }
 
-    void print(std::ostream& os) const override {
-        os << "[WHILE STATEMENT] cond : " << cond_ << std::endl;
-        os << "do: : " << stmt_ << std::endl;
-    }
-
 private:
     /// Condition for the loop.
     std::shared_ptr<Expr> cond_;
@@ -384,11 +363,6 @@ public:
     const std::string& GetName() const { return name_; }
     const std::string& GetType() const { return type_; }
     const Expr& GetExpression() const { return *expr_; }
-
-    void print(std::ostream& os) const override {
-        os << "[VARIABLE DECLARATION] name_ : " << name_ << std::endl;
-        os << "type : " << type_ << std::endl;
-    }
 
 private:
 
@@ -451,14 +425,6 @@ public:
 
     const std::string &GetPrimitiveName() const { return primitive_; }
 
-    void print(std::ostream& os) const override {
-        os << "[PROTO DECL] " << GetName() << '(' ;
-        for (auto& it : ArgList()) {
-            os << it.first << ":" << it.second << ", ";
-        }
-        os << ')';
-    }
-
 private:
     const std::string primitive_;
 };
@@ -481,14 +447,6 @@ public:
     }
 
     const BlockStmt &GetBody() const { return *body_; }
-
-    void print(std::ostream& os) const override {
-        os << "[FUNC DECL] " << GetName() << '(' ;
-        for (auto& it : ArgList()) {
-            os << it.first << ":" << it.second << ", ";
-        }
-        os << ')';
-    }
 
 private:
     std::shared_ptr<BlockStmt> body_;
@@ -514,18 +472,6 @@ public:
 
     BlockList::const_iterator begin() const { return body_.begin(); }
     BlockList::const_iterator end() const { return body_.end(); }
-    void print() {
-        std::cout << "[Top Level Module]\n";
-        for(auto& it : body_) {
-            std::visit([](auto&& arg) {std::cout << arg;}, it);
-        }
-    }
-
 private:
     BlockList body_;
 };
-
-inline std::ostream &operator<<(std::ostream &os, const std::shared_ptr<Node> node) {
-    node->print(os);
-    return os;
-}

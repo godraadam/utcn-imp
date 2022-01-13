@@ -9,7 +9,6 @@
 #include "parser.h"
 #include "verifier.h"
 
-#define LOG 1
 
 // -----------------------------------------------------------------------------
 int main(int argc, char **argv)
@@ -26,13 +25,9 @@ int main(int argc, char **argv)
     {
         // The lexer splits the source into a stream of tokens.
         Lexer lexer(argv[1]);
-
+        
         // The parser processes the tokens from the lexer to build the AST.
         auto ast = Parser(lexer).ParseModule();
-        #if LOG
-        //print ast
-        ast->print();
-        #endif
 
         // The verifier checks the program and emits warnings/errors.
         Verifier().Verify(*ast);

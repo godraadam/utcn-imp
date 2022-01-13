@@ -133,6 +133,14 @@ void Codegen::LowerStmt(const Scope &scope, const Stmt &stmt)
     {
         return LowerReturnStmt(scope, static_cast<const ReturnStmt &>(stmt));
     }
+    case Stmt::Kind::IF:
+        throw std::logic_error("Not implemented");
+    
+    case Stmt::Kind::ELSE:
+        throw std::logic_error("Not implemented");
+     
+    case Stmt::Kind::VARDECL:
+        throw std::logic_error("Not implemented");
     }
 }
 
@@ -199,6 +207,19 @@ void Codegen::LowerExpr(const Scope &scope, const Expr &expr)
     {
         return LowerIntegerExpr(scope, static_cast<const IntExpr &>(expr));
     }
+    case Expr::Kind::STRING:
+    {
+        throw std::logic_error("Not implemented");
+    }
+    
+    case Expr::Kind::BOOL:
+    {
+        throw std::logic_error("Not implemented");
+    }
+    case Expr::Kind::UNARY:
+    {
+        throw std::logic_error("Not implemented");
+    }
     }
 }
 
@@ -234,10 +255,38 @@ void Codegen::LowerBinaryExpr(const Scope &scope, const BinaryExpr &binary)
     switch (binary.GetKind())
     {
     case BinaryExpr::Kind::ADD:
-        return EmitAddOrSub(Opcode::ADD);
+         EmitBinary(Opcode::ADD);
+         break;
     case BinaryExpr::Kind::SUB:
-        return EmitAddOrSub(Opcode::SUB);
-    //add mul and division later
+         EmitBinary(Opcode::SUB);
+         break;
+    case BinaryExpr::Kind::MUL:
+         EmitBinary(Opcode::MUL);
+         break;
+    case BinaryExpr::Kind::DIV:
+         EmitBinary(Opcode::DIV);
+         break;
+    case BinaryExpr::Kind::EQ:
+         EmitBinary(Opcode::EQ);
+         break;
+    case BinaryExpr::Kind::NEQ:
+         EmitBinary(Opcode::NEQ);
+         break;
+    case BinaryExpr::Kind::GR:
+         EmitBinary(Opcode::GR);
+         break;
+    case BinaryExpr::Kind::GREQ:
+         EmitBinary(Opcode::GREQ);
+         break;
+    case BinaryExpr::Kind::LE:
+         EmitBinary(Opcode::LE);
+         break;
+    case BinaryExpr::Kind::LEQ:
+         EmitBinary(Opcode::LEQ);
+         break;
+    case BinaryExpr::Kind::MOD:
+         EmitBinary(Opcode::MOD);
+         break;
     }
 }
 
@@ -257,7 +306,6 @@ void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
 void Codegen::LowerIntegerExpr(const Scope &scope, const IntExpr &val)
 {
     EmitInt(val.GetValue());
-    //TODO decrease depth_?
 }
 
 // -----------------------------------------------------------------------------
@@ -375,7 +423,7 @@ void Codegen::EmitReturn()
 }
 
 // -----------------------------------------------------------------------------
-void Codegen::EmitAddOrSub(Opcode opcode)
+void Codegen::EmitBinary(Opcode opcode)
 {
     assert(depth_ > 0 && "no elements on stack");
     depth_ -= 1;

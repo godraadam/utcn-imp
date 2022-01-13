@@ -31,8 +31,6 @@ Parser::Parser(Lexer &lexer)
 // -----------------------------------------------------------------------------
 std::shared_ptr<Module> Parser::ParseModule()
 {
-    int x;
-    std::cin >> x;
     std::vector<TopLevelStmt> body;
     while (auto tk = Current())
     {
@@ -74,7 +72,6 @@ std::shared_ptr<Module> Parser::ParseModule()
             else
             {
                 auto block = ParseBlockStmt();
-                std::cout << block;
                 body.push_back(std::make_shared<FuncDecl>(
                     name,
                     std::move(args),
@@ -229,8 +226,10 @@ std::shared_ptr<Expr> Parser::ParseTermExpr()
     {
         //match ( expr )
         if (Current().Is(Token::Kind::LPAREN)) {
+            lexer_.Next();
             auto expr = ParseExpr();
-            Expect(Token::Kind::RPAREN);
+            Check(Token::Kind::RPAREN);
+            lexer_.Next();
             return expr;
         }
 
@@ -245,11 +244,19 @@ std::shared_ptr<Expr> Parser::ParseTermExpr()
 // -----------------------------------------------------------------------------
 std::shared_ptr<Expr> Parser::ParseCallExpr()
 {
-    std::shared_ptr<Expr> callee = ParseTermExpr();
-    while (Current().Is(Token::Kind::LPAREN))
-    {
-        std::vector<std::shared_ptr<Expr>> args;
-        while (!lexer_.Next().Is(Token::Kind::RPAREN))
+    
+    // function calls like fn()() not allowed, not a functional language (yet)
+    std::shared_ptr<Expr> expr = ParseTermExpr();
+    if (Current().Is(Token::Kind::LPAREN)) {
+        return ParseArgumentList(expr);
+    }
+    return expr;
+}
+
+std::shared_ptr<Expr> Parser::ParseArgumentList(std::shared_ptr<Expr> callee)
+{
+    std::vector<std::shared_ptr<Expr>> args;
+    while (!lexer_.Next().Is(Token::Kind::RPAREN))
         {
             args.push_back(ParseExpr());
             if (!Current().Is(Token::Kind::COMMA))
@@ -257,11 +264,9 @@ std::shared_ptr<Expr> Parser::ParseCallExpr()
                 break;
             }
         }
-        Check(Token::Kind::RPAREN);
-        lexer_.Next();
-        callee = std::make_shared<CallExpr>(callee, std::move(args));
-    }
-    return callee;
+    Check(Token::Kind::RPAREN);
+    lexer_.Next();
+    return std::make_shared<CallExpr>(callee, std::move(args));
 }
 
 // -----------------------------------------------------------------------------
@@ -304,12 +309,18 @@ std::shared_ptr<Expr> Parser::ParseComparisonExpr() {
         switch(kind) {
             case Token::Kind::GR :
                 lhs =  std::make_shared<BinaryExpr>(BinaryExpr::Kind::GR, lhs, rhs);
+                break;
             case Token::Kind::GREQ :
                 lhs = std::make_shared<BinaryExpr>(BinaryExpr::Kind::GREQ, lhs, rhs);
+                break;
             case Token::Kind::LE :
                 lhs = std::make_shared<BinaryExpr>(BinaryExpr::Kind::LE, lhs, rhs);
+                break;
             case Token::Kind::LEQ :
                 lhs =  std::make_shared<BinaryExpr>(BinaryExpr::Kind::LEQ, lhs, rhs);
+                break;
+            default:
+                assert(false && "Unreachable code");
         }
         kind = Current().GetKind();
     }
@@ -325,10 +336,15 @@ std::shared_ptr<Expr> Parser::ParseMulDivExpr() {
         switch(kind) {
             case Token::Kind::STAR :
                 lhs = std::make_shared<BinaryExpr>(BinaryExpr::Kind::MUL, lhs, rhs);
+                break;
             case Token::Kind::SLASH :
                 lhs =  std::make_shared<BinaryExpr>(BinaryExpr::Kind::DIV, lhs, rhs);
+                break;
             case Token::Kind::MOD :
                 lhs =  std::make_shared<BinaryExpr>(BinaryExpr::Kind::MOD, lhs, rhs);
+                break;
+            default:
+                assert(false && "Unreachable code");
         }
         kind = Current().GetKind();
     }
